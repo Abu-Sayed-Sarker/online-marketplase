@@ -64,15 +64,15 @@ const JobDetails = () => {
           <div className='flex items-center gap-5'>
             <div>
               <p className='mt-2 text-sm  text-gray-600 '>
-                Name: {byear.name}
+                Name: {byear?.name}
               </p>
               <p className='mt-2 text-sm  text-gray-600 '>
-                Email: {byear.email}
+                Email: {byear?.email}
               </p>
             </div>
             <div className='rounded-full object-cover overflow-hidden w-14 h-14'>
               <img
-                src={byear.photo}
+                src={byear?.photo}
                 alt=''
               />
             </div>
