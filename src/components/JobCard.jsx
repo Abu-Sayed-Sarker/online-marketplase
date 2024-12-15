@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
 
 const JobCard = ({ job }) => {
-  console.log(job);
 
   const { job_tittle,
     category,
@@ -16,14 +15,14 @@ const JobCard = ({ job }) => {
 
   return (
     <Link
-      to={`/job/1`}
+      to={`/job/${job._id}`}
       className='w-full max-w-sm px-4 py-3 bg-white rounded-md shadow-md hover:scale-[1.05] transition-all'
     >
       <div className='flex items-center justify-between'>
         <span className='text-xs font-light text-gray-800 '>
           Deadline: {format(new Date(date), 'P')}
         </span>
-        <span className='px-3 py-1 text-[8px] text-blue-800 uppercase bg-blue-200 rounded-full '>
+        <span className={`px-3 py-1 text-[8px] ${job?.category === "Web Development" && "text-blue-500 bg-blue-100/60"} ${job?.category === "Graphics Design" && "text-pink-500 bg-pink-100/60"} ${job?.category === "Digital Marketing" && "text-green-500 bg-green-100/60"} rounded-full`}>
           {category}
         </span>
       </div>

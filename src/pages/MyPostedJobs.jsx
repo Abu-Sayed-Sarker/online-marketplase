@@ -3,12 +3,13 @@ import { Link } from 'react-router-dom'
 import { AuthContext } from '../providers/AuthProvider'
 import axios from 'axios';
 import { format } from 'date-fns';
+import toast from 'react-hot-toast';
 
 const MyPostedJobs = () => {
   const { user } = useContext(AuthContext);
 
   const [jobs, setJobs] = useState([]);
-  console.log(jobs);
+
 
 
 
@@ -21,6 +22,40 @@ const MyPostedJobs = () => {
   const fatchallData = async () => {
     const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/all-jobs/${user.email}`)
     setJobs(data)
+  }
+
+
+  const handelDaleteJob = async id => {
+    try {
+      const { data } = await axios.delete(`${import.meta.env.VITE_API_URL}/job/${id}`)
+      const newJob = jobs.filter(j => j._id !== id);
+      setJobs(newJob);
+      console.log(data);
+
+    } catch (err) {
+      console.log(err);
+      toast.error("somthing is wrong")
+
+    }
+  }
+
+  const deleteToast = id => {
+    toast(
+      (t) => (
+        <div className='flex flex-col gap-4'>
+          <div>
+            Are you <b>Sure</b>
+          </div>
+          <div className='flex gap-3'>
+            <button className='py-2 px-3 text-red-500 bg-red-100/60 rounded-xl' onClick={() => {
+              handelDaleteJob(id)
+              toast.dismiss(t.id)
+            }}>Delete</button>
+            <button className='py-2 px-3 text-green-500 bg-green-100/60 rounded-xl' onClick={() => toast.dismiss(t.id)}>Close</button>
+          </div>
+        </div>
+      )
+    );
   }
 
   return (
@@ -100,7 +135,7 @@ const MyPostedJobs = () => {
                       <td className='px-4 py-4 text-sm whitespace-nowrap'>
                         <div className='flex items-center gap-x-2'>
                           <p
-                            className={`px-3 py-1  text-blue-500 bg-blue-100/60 text-xs  rounded-full`}
+                            className={`px-3 py-1  ${job?.category === "Web Development" && "text-blue-500 bg-blue-100/60"} ${job?.category === "Graphics Design" && "text-pink-500 bg-pink-100/60"} ${job?.category === "Digital Marketing" && "text-green-500 bg-green-100/60"} text-xs  rounded-full`}
                           >
                             {job?.category}
                           </p>
@@ -111,7 +146,7 @@ const MyPostedJobs = () => {
                       </td>
                       <td className='px-4 py-4 text-sm whitespace-nowrap'>
                         <div className='flex items-center gap-x-6'>
-                          <button className='text-gray-500 transition-colors duration-200   hover:text-red-500 focus:outline-none'>
+                          <button onClick={() => deleteToast(job._id)} className='text-gray-500 transition-colors duration-200   hover:text-red-500 focus:outline-none'>
                             <svg
                               xmlns='http://www.w3.org/2000/svg'
                               fill='none'
@@ -129,7 +164,7 @@ const MyPostedJobs = () => {
                           </button>
 
                           <Link
-                            to={`/update/1`}
+                            to={`/update/${job._id}`}
                             className='text-gray-500 transition-colors duration-200   hover:text-yellow-500 focus:outline-none'
                           >
                             <svg
@@ -157,7 +192,7 @@ const MyPostedJobs = () => {
           </div>
         </div>
       </div>
-    </section>
+    </section >
   )
 }
 

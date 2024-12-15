@@ -1,9 +1,91 @@
-import { useState } from 'react'
+import axios from 'axios'
+
+import { useContext, useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+import { useNavigate, useParams } from 'react-router-dom'
+import { AuthContext } from '../providers/AuthProvider'
+import toast from 'react-hot-toast'
 
 const UpdateJob = () => {
+
+  const { user } = useContext(AuthContext);
+
+  const { id } = useParams();
+
+  const navigate = useNavigate();
+
   const [startDate, setStartDate] = useState(new Date())
+
+  const [job, setJob] = useState([]);
+
+
+
+
+  useEffect(() => {
+    fatchallData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  const fatchallData = async () => {
+    const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/job/${id}`)
+    setJob(data)
+  }
+
+
+
+
+
+
+  //update
+
+  const upDateJob = async e => {
+    e.preventDefault();
+    const from = e.target;
+
+
+    const job_title = from.job_title.value;
+    const email = from.email.value;
+    const category = from.category.value;
+    const date = startDate;
+    const min_price = from.min_price.value;
+    const max_price = from.max_price.value;
+    const description = from.description.value;
+
+    const updatedJob = {
+      job_title,
+      byear: {
+        email,
+        name: user?.displayName,
+        photo: user?.photoURL
+      },
+      category,
+      date,
+      min_price,
+      max_price,
+      description,
+      bit_count: job.bit_count
+    }
+
+
+
+    try {
+      const { data } = await axios.put(`${import.meta.env.VITE_API_URL}/update/${id}`,
+        updatedJob
+      )
+      console.log(data);
+      toast.success("Your job is updated successfilly.")
+      from.reset()
+      navigate('/my-posted-jobs')
+
+    } catch (err) {
+      console.log(err);
+      toast.error("sothing is wrong")
+    }
+
+
+
+  }
+
 
   return (
     <div className='flex justify-center items-center min-h-[calc(100vh-306px)] my-12'>
@@ -12,7 +94,7 @@ const UpdateJob = () => {
           Update a Job
         </h2>
 
-        <form>
+        <form onSubmit={upDateJob}>
           <div className='grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2'>
             <div>
               <label className='text-gray-700 ' htmlFor='job_title'>
@@ -21,6 +103,7 @@ const UpdateJob = () => {
               <input
                 id='job_title'
                 name='job_title'
+                defaultValue={job.job_title}
                 type='text'
                 className='block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md  focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40  focus:outline-none focus:ring'
               />
@@ -34,6 +117,7 @@ const UpdateJob = () => {
                 id='emailAddress'
                 type='email'
                 name='email'
+                defaultValue={user.email}
                 disabled
                 className='block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md  focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40  focus:outline-none focus:ring'
               />
@@ -44,24 +128,28 @@ const UpdateJob = () => {
               <DatePicker
                 className='border p-2 rounded-md'
                 selected={startDate}
+                defaultValue={new Date(job.date)}
                 onChange={date => setStartDate(date)}
               />
             </div>
 
-            <div className='flex flex-col gap-2 '>
-              <label className='text-gray-700 ' htmlFor='category'>
-                Category
-              </label>
-              <select
-                name='category'
-                id='category'
-                className='border p-2 rounded-md'
-              >
-                <option value='Web Development'>Web Development</option>
-                <option value='Graphics Design'>Graphics Design</option>
-                <option value='Digital Marketing'>Digital Marketing</option>
-              </select>
-            </div>
+            {
+              job.category && <div className='flex flex-col gap-2 '>
+                <label className='text-gray-700 ' htmlFor='category'>
+                  Category
+                </label>
+                <select
+                  name='category'
+                  id='category'
+                  className='border p-2 rounded-md'
+                  defaultValue={job.category}
+                >
+                  <option value='Web Development'>Web Development</option>
+                  <option value='Graphics Design'>Graphics Design</option>
+                  <option value='Digital Marketing'>Digital Marketing</option>
+                </select>
+              </div>
+            }
             <div>
               <label className='text-gray-700 ' htmlFor='min_price'>
                 Minimum Price
@@ -69,6 +157,7 @@ const UpdateJob = () => {
               <input
                 id='min_price'
                 name='min_price'
+                defaultValue={job.min_price}
                 type='number'
                 className='block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md  focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40  focus:outline-none focus:ring'
               />
@@ -81,6 +170,7 @@ const UpdateJob = () => {
               <input
                 id='max_price'
                 name='max_price'
+                defaultValue={job.max_price}
                 type='number'
                 className='block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md  focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40  focus:outline-none focus:ring'
               />
@@ -93,6 +183,7 @@ const UpdateJob = () => {
             <textarea
               className='block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md  focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40  focus:outline-none focus:ring'
               name='description'
+              defaultValue={job.description}
               id='description'
               cols='30'
             ></textarea>

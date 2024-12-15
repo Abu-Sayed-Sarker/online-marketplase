@@ -46,7 +46,6 @@ const AddJob = () => {
       description,
       bit_count: 0
     }
-    console.log(allData);
 
     //Make a post method using axouse
 
