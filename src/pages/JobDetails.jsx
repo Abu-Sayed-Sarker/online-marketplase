@@ -1,12 +1,18 @@
 import axios from 'axios'
-import { format } from 'date-fns'
-import { useEffect, useState } from 'react'
+import { compareAsc, format } from 'date-fns'
+import { useContext, useEffect, useState } from 'react'
 
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
+import { AuthContext } from '../providers/AuthProvider'
+import toast from 'react-hot-toast'
 
 const JobDetails = () => {
+  const { user } = useContext(AuthContext);
+
+  const nevigate = useNavigate();
+
   const [startDate, setStartDate] = useState(new Date())
 
   const { id } = useParams();
@@ -22,7 +28,8 @@ const JobDetails = () => {
     min_price,
     max_price,
     description,
-    bit_count
+    bit_count,
+    _id
   } = job || {};
 
 
@@ -33,6 +40,73 @@ const JobDetails = () => {
   const fatchallData = async () => {
     const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/job/${id}`)
     setJob(data)
+  }
+
+
+
+
+  // handle from submit
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+    const from = e.target;
+
+    const price = from.price.value;
+    const email = user?.email;
+    const comment = from.comment.value;
+    const jobId = _id
+
+
+    //validation
+
+    //0. chack bids parmisstion validetaion
+
+    // if (user?.email === byear?.email) {
+    //   return toast.error("Action not parmited");
+    // }
+
+    //1. chack date
+
+
+    if (compareAsc(new Date(), new Date(date)) === 1) {
+      return toast.error("Deadline Crossed, Bidding Forbidden!");
+    }
+
+    //2. price chack
+
+    if (price > max_price) {
+      return toast.error("Offer less or atlist equal to mixmum!");
+    }
+
+
+    //3. chack offer daedline and bids deadline
+
+
+    if (compareAsc(new Date(startDate), new Date(date)) === 1) {
+      return toast.error("Probide deadline under offer deadline!");
+    }
+
+
+
+    const bidData = { jobId, price, email, comment, deadline: startDate, job_title, category, status: 'Pending', byear: byear?.email };
+
+    try {
+      const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/add-bid`,
+        bidData
+      )
+      console.log(data);
+      toast.success("Your bid added successfilly.")
+      from.reset()
+      nevigate('/my-bids')
+    } catch (err) {
+      console.log(err);
+      if (err?.response?.data) {
+
+        return toast.error(err?.response?.data)
+      }
+      toast.error("sothing is wrong")
+
+    }
   }
 
   return (
@@ -72,6 +146,7 @@ const JobDetails = () => {
             </div>
             <div className='rounded-full object-cover overflow-hidden w-14 h-14'>
               <img
+                referrerPolicy='no-referrer'
                 src={byear?.photo}
                 alt=''
               />
@@ -88,7 +163,7 @@ const JobDetails = () => {
           Place A Bid
         </h2>
 
-        <form>
+        <form onSubmit={handleSubmit}>
           <div className='grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2'>
             <div>
               <label className='text-gray-700 ' htmlFor='price'>
@@ -111,6 +186,7 @@ const JobDetails = () => {
                 id='emailAddress'
                 type='email'
                 name='email'
+                defaultValue={user?.email}
                 disabled
                 className='block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md   focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40  focus:outline-none focus:ring'
               />
