@@ -10,7 +10,7 @@ const BidrequstCard = ({ job, handleSaatuseChange }) => {
                 {job_title}
             </td>
             <td className='px-4 py-4 text-sm text-gray-500  whitespace-nowrap'>
-                {byear?.email}
+                {byear}
             </td>
 
             <td className='px-4 py-4 text-sm text-gray-500  whitespace-nowrap'>
@@ -30,8 +30,12 @@ const BidrequstCard = ({ job, handleSaatuseChange }) => {
                 </div>
             </td>
             <td className='px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap'>
-                <div className='inline-flex items-center px-3 py-1 rounded-full gap-x-2 bg-yellow-100/60 text-yellow-500'>
-                    <span className='h-1.5 w-1.5 rounded-full bg-green-500'></span>
+                <div
+                    className={`inline-flex items-center px-3 py-1 rounded-full gap-x-2 ${status === "Completed" && "text-green-500 bg-green-100/60"} ${status === "In Progress" && "text-blue-500 bg-blue-100/60"} ${status === "Rejected" && "text-red-500 bg-red-100/60"} ${status === "Pending" && "text-yellow-500 bg-yellow-100/60"}`}
+                >
+                    <span
+                        className={`h-1.5 w-1.5 rounded-full ${status === "Completed" && "bg-green-500"} ${status === "In Progress" && " bg-blue-500"} ${status === "Rejected" && " bg-red-500"} ${status === "Pending" && " bg-yellow-500"}`}
+                    ></span>
                     <h2 className='text-sm font-normal '>{status}</h2>
                 </div>
             </td>
@@ -39,7 +43,8 @@ const BidrequstCard = ({ job, handleSaatuseChange }) => {
                 <div className='flex items-center gap-x-6'>
                     <button
                         onClick={() => handleSaatuseChange(_id, status, 'In Progress')}
-                        className='disabled:cursor-not-allowed text-gray-500 transition-colors duration-200   hover:text-red-500 focus:outline-none'>
+                        disabled={status === "In Progress" || status === "Completed"}
+                        className='disabled:hover:cursor-not-allowed disabled:cursor-not-allowed text-gray-500 transition-colors duration-200   hover:text-red-500 focus:outline-none'>
                         <svg
                             xmlns='http://www.w3.org/2000/svg'
                             fill='none'
@@ -58,6 +63,7 @@ const BidrequstCard = ({ job, handleSaatuseChange }) => {
 
                     <button
                         onClick={() => handleSaatuseChange(_id, status, 'Rejected')}
+                        disabled={status === "Rejected" || status === "Completed"}
                         className='disabled:cursor-not-allowed text-gray-500 transition-colors duration-200   hover:text-yellow-500 focus:outline-none'>
                         <svg
                             xmlns='http://www.w3.org/2000/svg'
@@ -76,7 +82,7 @@ const BidrequstCard = ({ job, handleSaatuseChange }) => {
                     </button>
                 </div>
             </td>
-        </tr>
+        </tr >
     );
 };
 

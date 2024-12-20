@@ -2,6 +2,7 @@ import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../providers/AuthProvider";
 import BidCard from "../components/BidCard";
+import toast from "react-hot-toast";
 
 const MyBids = () => {
   const { user } = useContext(AuthContext);
@@ -15,6 +16,27 @@ const MyBids = () => {
   const fatchallData = async () => {
     const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/bids/${user.email}`)
     setJobs(data)
+  }
+
+
+
+
+  // status change functionalaty 
+
+  const handleSaatuseChange = async (id, previoustatus, status) => {
+    if (previoustatus !== 'In Progress') return toast.error("Not allowed")
+
+    try {
+      const { data } = axios.patch(`${import.meta.env.VITE_API_URL}/bid-status-update/${id}`, { status })
+
+      console.log(data)
+
+      fatchallData()
+    } catch (err) {
+      console.log(err);
+
+    }
+
   }
 
   return (
@@ -80,7 +102,7 @@ const MyBids = () => {
                 </thead>
                 <tbody className='bg-white divide-y divide-gray-200 '>
                   {
-                    jobs.map(job => <BidCard key={job._id} job={job}></BidCard>)
+                    jobs.map(job => <BidCard key={job._id} job={job} handleSaatuseChange={handleSaatuseChange}></BidCard>)
                   }
                 </tbody>
               </table>

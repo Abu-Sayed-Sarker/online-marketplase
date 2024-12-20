@@ -23,10 +23,19 @@ const BidRequests = () => {
 
   // statuschange button function 
 
-  const handleSaatuseChange = (id, previoustatus, status) => {
+  const handleSaatuseChange = async (id, previoustatus, status) => {
     if (previoustatus === status || previoustatus === 'Completed') return toast.error("Not allowed")
 
-    console.table({ id, previoustatus, status });
+    try {
+      const { data } = axios.patch(`${import.meta.env.VITE_API_URL}/bid-status-update/${id}`, { status })
+
+      console.log(data)
+
+      fatchallData()
+    } catch (err) {
+      console.log(err);
+
+    }
 
   }
 
@@ -39,7 +48,7 @@ const BidRequests = () => {
         <h2 className='text-lg font-medium text-gray-800 '>Bid Requests</h2>
 
         <span className='px-3 py-1 text-xs text-blue-600 bg-blue-100 rounded-full '>
-          4 Requests
+          {Jobs.length} Requests
         </span>
       </div>
 
