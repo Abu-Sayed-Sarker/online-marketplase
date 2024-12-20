@@ -5,7 +5,7 @@ import { format } from 'date-fns'
 
 const JobCard = ({ job }) => {
 
-  const { job_tittle,
+  const { job_title,
     category,
     date,
     min_price,
@@ -29,7 +29,7 @@ const JobCard = ({ job }) => {
 
       <div>
         <h1 className='mt-2 text-lg font-semibold text-gray-800 '>
-          {job_tittle}
+          {job_title}
         </h1>
 
         <p className='mt-2 text-sm text-gray-600 '>

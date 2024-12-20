@@ -3,8 +3,10 @@ import { useContext, useEffect, useState } from "react";
 import BidrequstCard from "../components/BidrequstCard";
 import { AuthContext } from "../providers/AuthProvider";
 import toast from "react-hot-toast";
+import useAxiosSecure from "../Hook/useAxiosSecure";
 
 const BidRequests = () => {
+  const axiosSecure = useAxiosSecure()
   const { user } = useContext(AuthContext);
   const [Jobs, setJobs] = useState([]);
 
@@ -13,7 +15,7 @@ const BidRequests = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
   const fatchallData = async () => {
-    const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/bids-requst/${user.email}`)
+    const { data } = await axiosSecure.get(`/bids-requst/${user.email}`)
     setJobs(data)
   }
 

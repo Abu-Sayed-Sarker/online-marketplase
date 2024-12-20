@@ -1,19 +1,34 @@
-import { useContext, useState } from 'react'
+import { useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-import { AuthContext } from '../providers/AuthProvider'
 import toast from 'react-hot-toast'
-
-import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import useAuth from '../Hook/useAuth'
+import { useMutation } from '@tanstack/react-query'
+import useAxiosSecure from '../Hook/useAxiosSecure'
 
 const AddJob = () => {
+  const axiosSecure = useAxiosSecure()
 
-  const { user } = useContext(AuthContext)
+  const { user } = useAuth()
 
   const nevigate = useNavigate()
 
   const [startDate, setStartDate] = useState(new Date())
+
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: async jobData => {
+      await axiosSecure.post(`/add-jobs`,
+        jobData
+      )
+    },
+    onSuccess: () => {
+      console.log("data added")
+    },
+    onError: err => {
+      console.log(err)
+    }
+  })
 
 
 
@@ -50,10 +65,7 @@ const AddJob = () => {
     //Make a post method using axouse
 
     try {
-      const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/add-jobs`,
-        allData
-      )
-      console.log(data);
+      await mutateAsync(allData)
       toast.success("Your job is added successfilly.")
       from.reset()
       nevigate('/my-posted-jobs')
@@ -161,7 +173,7 @@ const AddJob = () => {
           </div>
           <div className='flex justify-end mt-6'>
             <button className='disabled:cursor-not-allowed px-8 py-2.5 leading-5 text-white transition-colors duration-300 transhtmlForm bg-gray-700 rounded-md hover:bg-gray-600 focus:outline-none focus:bg-gray-600'>
-              Save
+              {isPending ? 'Saving....' : 'Save'}
             </button>
           </div>
         </form>
